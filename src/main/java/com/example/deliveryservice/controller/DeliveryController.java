@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class DeliveryController {
     private final DeliveryService deliveryService;
 
-    @PostMapping("/{uid}/start")
-    public StartDeliveryResponseDTO startDelivery(@PathVariable Integer uid) {
-        return deliveryService.startDelivery(uid);
+    @PostMapping("/{uid}/{type}/start")
+    public StartDeliveryResponseDTO startDelivery(@PathVariable(name = "uid") Integer uid, @PathVariable(name = "type") String type) {
+        return deliveryService.startDelivery(uid, type);
     }
 
-    @PostMapping("/{uid}/complete")
-    public CompleteDeliveryResponseDTO completeDelivery(@PathVariable Integer uid) {
-        return deliveryService.completeDelivery(uid);
+    @PostMapping("/{uid}/{type}/complete")
+    public CompleteDeliveryResponseDTO completeDelivery(@PathVariable(name = "uid") Integer uid, @PathVariable(name = "type") String type) {
+        return deliveryService.completeDelivery(uid, type);
     }
 }
