@@ -20,7 +20,7 @@ public class RabbitConfig {
     // 큐 1: 결제 완료 큐
     @Bean
     public Queue paymentCompletedQueue() {
-        return new Queue("order-created.order-service", true); // durable: true
+        return new Queue("order-created.order-service", true);
     }
 
     // 큐 2: 주문 수락 큐
@@ -53,6 +53,30 @@ public class RabbitConfig {
         return new Queue("order-delivered.order-service", true);
     }
 
+    // 큐 7: 메뉴 등록 큐
+    @Bean
+    public Queue menuAddQueue() {
+        return new Queue("menu-add.menu-service", true);
+    }
+
+    // 큐 8: 메뉴 수정 큐
+    @Bean
+    public Queue menuUpdateQueue() {
+        return new Queue("menu-update.menu-service", true);
+    }
+
+    // 큐 9: 메뉴 등록 큐
+    @Bean
+    public Queue storeAddQueue() {
+        return new Queue("store-add.store-service", true);
+    }
+
+    // 큐 10: 메뉴 수정 큐
+    @Bean
+    public Queue storeUpdateQueue() {
+        return new Queue("store-update.store-service", true);
+    }
+
     // 공용 RabbitTemplate 설정
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
@@ -65,12 +89,19 @@ public class RabbitConfig {
     @Bean
     public RabbitAdmin rabbitAdmin() {
         RabbitAdmin rabbitAdmin = new RabbitAdmin(connectionFactory);
+        // 주문 큐 등록
         rabbitAdmin.declareQueue(paymentCompletedQueue());
         rabbitAdmin.declareQueue(orderConfirmedQueue());
         rabbitAdmin.declareQueue(orderCancelledQueue());
         rabbitAdmin.declareQueue(orderCookingQueue());
         rabbitAdmin.declareQueue(orderDeliveringQueue());
         rabbitAdmin.declareQueue(orderDeliveredQueue());
+        // 메뉴 큐 등록
+        rabbitAdmin.declareQueue(menuAddQueue());
+        rabbitAdmin.declareQueue(menuUpdateQueue());
+        // 지점 큐 등록
+        rabbitAdmin.declareQueue(storeAddQueue());
+        rabbitAdmin.declareQueue(storeUpdateQueue());
         return rabbitAdmin;
     }
 }
