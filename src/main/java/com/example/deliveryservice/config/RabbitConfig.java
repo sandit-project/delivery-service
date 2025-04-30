@@ -65,13 +65,26 @@ public class RabbitConfig {
         return new Queue("menu-update.menu-service", true);
     }
 
-    // 큐 9: 메뉴 등록 큐
+    // 큐 9: 재료 등록 큐
+    @Bean
+    public Queue ingredientAddQueue() {
+        return new Queue("ingredient-add.menu-service", true);
+    }
+
+    // 큐 10: 재료 수정 큐
+    @Bean
+    public Queue ingredientUpdateQueue() {
+        return new Queue("ingredient-update.menu-service", true);
+    }
+
+
+    // 큐 11: 메뉴 등록 큐
     @Bean
     public Queue storeAddQueue() {
         return new Queue("store-add.store-service", true);
     }
 
-    // 큐 10: 메뉴 수정 큐
+    // 큐 12: 메뉴 수정 큐
     @Bean
     public Queue storeUpdateQueue() {
         return new Queue("store-update.store-service", true);
