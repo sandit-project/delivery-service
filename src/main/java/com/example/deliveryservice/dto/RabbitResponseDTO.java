@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class CompleteDeliveryResponseDTO {
+public class RabbitResponseDTO {
     private boolean isSuccess;
     private String message;
 }
