@@ -1,13 +1,17 @@
 package com.example.deliveryservice.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
-import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -98,15 +102,10 @@ public class RabbitConfig {
     }
 
     @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-        RabbitTemplate template = new RabbitTemplate(connectionFactory);
-        template.setMessageConverter(jackson2MessageConverter());
-        return template;
-    }
-
-    @Bean
-    public MessageConverter jackson2MessageConverter() {
-        return new Jackson2JsonMessageConverter();
+    public Jackson2JsonMessageConverter rabbitMessageConverter(ObjectMapper mapper) {
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return new Jackson2JsonMessageConverter(mapper);
     }
 
     // RabbitAdmin으로 큐 선언 보장
@@ -129,4 +128,21 @@ public class RabbitConfig {
         rabbitAdmin.declareQueue(storeUpdateQueue());
         return rabbitAdmin;
     }
+
+    // 큐 바인딩
+    @Bean
+    public Binding cookingBinding() {
+        return BindingBuilder
+                .bind(orderCookingQueue()) // order-cooking.order-service
+                .to(new DirectExchange("order-cooking")) // 메시지를 보낸 exchange
+                .with("#"); // 정확히 같은 routing key 사용
+    }
+    @Bean
+    public Binding deliveringBinding() {
+        return BindingBuilder
+                .bind(orderDeliveringQueue()) // order-cooking.order-service
+                .to(new DirectExchange("order-delivering")) // 메시지를 보낸 exchange
+                .with("#"); // 정확히 같은 routing key 사용
+    }
+
 }

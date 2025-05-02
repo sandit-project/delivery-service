@@ -5,13 +5,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @Setter
 @Builder
-public class OrderCreatedMessage {
+public class OrderCreatedMessage implements Serializable {
     private String merchantUid;
     private Integer userUid;
     private Integer socialUid;
