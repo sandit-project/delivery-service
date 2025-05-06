@@ -12,15 +12,9 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class OrderCreatedMessage implements Serializable {
+public class OrderCreatedMessage {
     private String merchantUid;
-    private Integer userUid;
-    private Integer socialUid;
-    private Integer deliveryManUid;
-    private String deliveryManType;
-    private Integer storeUid;
-    private DeliveryAddressMessage deliveryAddress;
-    private List<OrderItemMessage> items;
     private OrderStatus status;
     private LocalDateTime createdDate;
+    private LocalDateTime reservationDate;
 }
