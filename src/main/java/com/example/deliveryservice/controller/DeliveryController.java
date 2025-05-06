@@ -1,5 +1,7 @@
 package com.example.deliveryservice.controller;
 
+import com.example.deliveryservice.dto.DeliveryCompleteRequestDTO;
+import com.example.deliveryservice.dto.DeliveryStartRequestDTO;
 import com.example.deliveryservice.dto.RabbitResponseDTO;
 import com.example.deliveryservice.service.DeliveryService;
 import lombok.RequiredArgsConstructor;
@@ -17,14 +19,14 @@ public class DeliveryController {
         deliveryService.testRabbit();
     }
 
-    @GetMapping("/{uid}/{type}/start")
-    public RabbitResponseDTO startDelivery(@PathVariable(name = "uid") Integer uid, @PathVariable(name = "type") String type) {
-        return deliveryService.startDelivery(uid, type);
+    @PostMapping("/start")
+    public RabbitResponseDTO startDelivery(@RequestBody DeliveryStartRequestDTO deliveryStartRequestDTO) {
+        return deliveryService.startDelivery(deliveryStartRequestDTO);
     }
 
-    @GetMapping("/{uid}/{type}/complete")
-    public RabbitResponseDTO completeDelivery(@PathVariable(name = "uid") Integer uid, @PathVariable(name = "type") String type) {
-        return deliveryService.completeDelivery(uid, type);
+    @PostMapping("/complete")
+    public RabbitResponseDTO completeDelivery(@RequestBody DeliveryCompleteRequestDTO deliveryCompleteRequestDTO) {
+        return deliveryService.completeDelivery(deliveryCompleteRequestDTO);
     }
 
 

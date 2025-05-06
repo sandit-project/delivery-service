@@ -1,5 +1,7 @@
 package com.example.deliveryservice.service;
 
+import com.example.deliveryservice.dto.DeliveryCompleteRequestDTO;
+import com.example.deliveryservice.dto.DeliveryStartRequestDTO;
 import com.example.deliveryservice.dto.RabbitResponseDTO;
 import com.example.deliveryservice.event.OrderCreatedMessage;
 import com.example.deliveryservice.type.OrderStatus;
@@ -35,7 +37,9 @@ public class DeliveryService {
         log.info("큐로 보낸 메시지: {}", received);
     }
 
-    public RabbitResponseDTO startDelivery(Integer uid, String type) {
+    public RabbitResponseDTO startDelivery(DeliveryStartRequestDTO deliveryStartRequestDTO) {
+        // DTO 받아서 DB에 저장하고 큐에 정보 전달
+
         // 1. 큐에서 메시지 수동 소비 (ex: order-preparing)
         Object message = rabbitTemplate.receiveAndConvert("order-cooking.order-service");
         OrderCreatedMessage received = objectMapper.convertValue(message, OrderCreatedMessage.class);
@@ -47,8 +51,8 @@ public class DeliveryService {
             log.warn("조리중 큐에서 메시지를 받지 못했습니다.");
         }
 
-        received.setDeliveryManUid(uid);
-        received.setDeliveryManType(type);
+        //received.setDeliveryManUid(uid);
+        //received.setDeliveryManType(type);
         received.setStatus(OrderStatus.ORDER_DELIVERING);
 
         try {
@@ -67,7 +71,7 @@ public class DeliveryService {
         }
     }
 
-    public RabbitResponseDTO completeDelivery(Integer uid, String type) {
+    public RabbitResponseDTO completeDelivery(DeliveryCompleteRequestDTO deliveryCompleteRequestDTO) {
         // 1. 큐에서 메시지 수동 소비 (ex: order-preparing)
         Object message = rabbitTemplate.receiveAndConvert("order-delivering.order-service");
         OrderCreatedMessage received = objectMapper.convertValue(message, OrderCreatedMessage.class);
@@ -80,27 +84,21 @@ public class DeliveryService {
 
         received.setStatus(OrderStatus.ORDER_DELIVERED);
 
-        if(uid.equals(received.getDeliveryManUid()) && type.equals(received.getDeliveryManType())){
-            try {
-                // 메시지 전송
-                rabbitTemplate.convertAndSend("status-change.order-service", received);
-                log.info("배달 완료 큐로 보낸 메시지: {}", received);
-                return RabbitResponseDTO.builder()
-                        .isSuccess(true)
-                        .message("배달이 완료 되었습니다.")
-                        .build();
-            } catch (Exception e) {
-                return RabbitResponseDTO.builder()
-                        .isSuccess(false)
-                        .message("배달 완료에 실패 했습니다!!")
-                        .build();
-            }
-        }else{
+        try {
+            // 메시지 전송
+            rabbitTemplate.convertAndSend("status-change.order-service", received);
+            log.info("배달 완료 큐로 보낸 메시지: {}", received);
+            return RabbitResponseDTO.builder()
+                    .isSuccess(true)
+                    .message("배달이 완료 되었습니다.")
+                    .build();
+        } catch (Exception e) {
             return RabbitResponseDTO.builder()
                     .isSuccess(false)
-                    .message("배달원이 일치 하지 않습니다.")
+                    .message("배달 완료에 실패 했습니다!!")
                     .build();
         }
+
     }
 }
 
