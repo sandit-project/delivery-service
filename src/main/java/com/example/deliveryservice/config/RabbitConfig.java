@@ -22,40 +22,16 @@ public class RabbitConfig {
 
     private final ConnectionFactory connectionFactory;
 
-    // 큐 1: 결제 완료 큐
-    @Bean
-    public Queue paymentCompletedQueue() {
-        return new Queue("order-created.order-service", true);
-    }
-
-    // 큐 2: 주문 수락 큐
-    @Bean
-    public Queue orderConfirmedQueue() {
-        return new Queue("order-accepted.order-service", true);
-    }
-
-    // 큐 3: 주문 취소 큐
+    // 주문 취소 큐
     @Bean
     public Queue orderCancelledQueue() {
         return new Queue("order-cancelled.order-service", true);
     }
 
-    // 큐 4: 조리중 큐
+    // 조리중 큐
     @Bean
     public Queue orderCookingQueue() {
         return new Queue("order-cooking.order-service", true);
-    }
-
-    // 큐 5: 배달 시작 큐
-    @Bean
-    public Queue orderDeliveringQueue() {
-        return new Queue("order-delivering.order-service", true);
-    }
-
-    // 큐 6: 배달 완료 큐
-    @Bean
-    public Queue orderDeliveredQueue() {
-        return new Queue("order-delivered.order-service", true);
     }
 
     // 큐 7: 메뉴 등록 큐
@@ -113,12 +89,8 @@ public class RabbitConfig {
     public RabbitAdmin rabbitAdmin() {
         RabbitAdmin rabbitAdmin = new RabbitAdmin(connectionFactory);
         // 주문 큐 등록
-        rabbitAdmin.declareQueue(paymentCompletedQueue());
-        rabbitAdmin.declareQueue(orderConfirmedQueue());
         rabbitAdmin.declareQueue(orderCancelledQueue());
         rabbitAdmin.declareQueue(orderCookingQueue());
-        rabbitAdmin.declareQueue(orderDeliveringQueue());
-        rabbitAdmin.declareQueue(orderDeliveredQueue());
         rabbitAdmin.declareQueue(statusChangeQueue());
         // 메뉴 큐 등록
         rabbitAdmin.declareQueue(menuAddQueue());
@@ -135,13 +107,6 @@ public class RabbitConfig {
         return BindingBuilder
                 .bind(orderCookingQueue()) // order-cooking.order-service
                 .to(new DirectExchange("order-cooking")) // 메시지를 보낸 exchange
-                .with("#"); // 정확히 같은 routing key 사용
-    }
-    @Bean
-    public Binding deliveringBinding() {
-        return BindingBuilder
-                .bind(orderDeliveringQueue()) // order-cooking.order-service
-                .to(new DirectExchange("order-delivering")) // 메시지를 보낸 exchange
                 .with("#"); // 정확히 같은 routing key 사용
     }
 

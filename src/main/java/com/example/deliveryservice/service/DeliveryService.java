@@ -101,17 +101,28 @@ public class DeliveryService {
     }
 
     public Mono<RabbitResponseDTO> startDelivery(DeliveryStartRequestDTO deliveryStartRequestDTO) {
+        log.info("start dto is :: {}",deliveryStartRequestDTO.toString());
         return deliveryRepository.findCookingByMerchantUid(deliveryStartRequestDTO.getMerchantUid())
                 .switchIfEmpty(Mono.error(new RuntimeException("배송 정보 없음")))
-                .map(this::convertToOrderCreatedMessage)
                 .flatMap(delivery -> {
                     // 1. 상태 변경
-                    delivery.setStatus(OrderStatus.ORDER_DELIVERING);
+                    Delivery updated = Delivery.builder()
+                            .uid(delivery.uid())
+                            .merchantUid(delivery.merchantUid())
+                            .riderUserUid(deliveryStartRequestDTO.getRiderUserUid())
+                            .riderSocialUid(deliveryStartRequestDTO.getRiderSocialUid())
+                            .addressStart(delivery.addressStart())
+                            .addressDestination(delivery.addressDestination())
+                            .deliveryAcceptTime(deliveryStartRequestDTO.getDeliveryAcceptTime())
+                            .deliveredTime(delivery.deliveredTime())
+                            .status(OrderStatus.ORDER_DELIVERING)
+                            .version(delivery.version())
+                            .build();
 
                     // 2. DB 저장
-                    return deliveryRepository.save(convertToEntity(delivery))
-                            .map(this::convertToOrderCreatedMessage); // 저장된 결과를 메시지로 변환
+                    return deliveryRepository.save(updated);
                 })
+                .map(this::convertToOrderCreatedMessage)
                 .flatMap(message -> {
                     try {
                         // 3. 메시지 큐 전송
@@ -135,24 +146,34 @@ public class DeliveryService {
     }
 
     public Mono<RabbitResponseDTO> completeDelivery(DeliveryCompleteRequestDTO deliveryCompleteRequestDTO) {
+        log.info("complete dto is :: {}", deliveryCompleteRequestDTO.toString());
         return deliveryRepository.findDeliveringByMerchantUid(deliveryCompleteRequestDTO.getMerchantUid())
                 .switchIfEmpty(Mono.error(new RuntimeException("배송 정보 없음")))
-                .map(this::convertToOrderCreatedMessage)
                 .flatMap(delivery -> {
                     // 1. 상태 변경
-                    delivery.setStatus(OrderStatus.ORDER_DELIVERED);
+                    Delivery updated = Delivery.builder()
+                            .uid(delivery.uid())
+                            .merchantUid(delivery.merchantUid())
+                            .riderUserUid(delivery.riderUserUid())
+                            .riderSocialUid(delivery.riderSocialUid())
+                            .addressStart(delivery.addressStart())
+                            .addressDestination(delivery.addressDestination())
+                            .deliveryAcceptTime(delivery.deliveryAcceptTime())
+                            .deliveredTime(deliveryCompleteRequestDTO.getDeliveredTime())
+                            .status(OrderStatus.ORDER_DELIVERED)
+                            .version(delivery.version())
+                            .build();
 
                     // 2. DB 저장
-                    return deliveryRepository.save(convertToEntity(delivery))
-                            .map(this::convertToOrderCreatedMessage); // 저장된 결과를 메시지로 변환
+                    return deliveryRepository.save(updated);
                 })
                 .flatMap(message -> {
                     try {
-                        // 3. 메시지 큐 전송
+                        // 2. 메시지 큐 전송
                         rabbitTemplate.convertAndSend("status-change.order-service", message);
                         log.info("배달완료 큐로 보낸 메시지: {}", message);
 
-                        // 4. 성공 응답 반환
+                        // 3. 성공 응답 반환
                         return Mono.just(RabbitResponseDTO.builder()
                                 .isSuccess(true)
                                 .message("배달이 완료 되었습니다.")
