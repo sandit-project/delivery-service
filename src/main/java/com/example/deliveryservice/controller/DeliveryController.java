@@ -18,12 +18,6 @@ import java.util.List;
 public class DeliveryController {
     private final DeliveryService deliveryService;
 
-    // 테스트 엔드포인트
-    @GetMapping
-    public void test(){
-        deliveryService.testRabbit();
-    }
-
     @GetMapping("/status/cooking")
     public Mono<List<OrderCreatedMessage>> getCookingOrders() {
         return deliveryService.getCookingOrders()

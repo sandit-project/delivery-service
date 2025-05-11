@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,25 +25,6 @@ public class DeliveryService {
     private final RabbitTemplate rabbitTemplate; // RabbitMQ 직접 접근용
     private final ObjectMapper objectMapper;
     private final DeliveryRepository deliveryRepository;
-
-    // 래빗 테스트용 코드
-    public void testRabbit(){
-        // 1. 큐에서 메시지 수동 소비 (ex: order-preparing)
-        Object message = rabbitTemplate.receiveAndConvert("order-created.order-service");
-        OrderCreatedMessage received = objectMapper.convertValue(message, OrderCreatedMessage.class);
-
-
-        if (received != null) {
-            log.info("큐에서 받은 메시지: {}", received);
-        } else {
-            log.warn("큐에서 메시지를 받지 못했습니다.");
-        }
-
-        received.setStatus(OrderStatus.ORDER_CONFIRMED);
-
-        rabbitTemplate.convertAndSend("status-change.order-service", received);
-        log.info("큐로 보낸 메시지: {}", received);
-    }
 
     // DB저장 로직
     public Mono<Boolean> saveOrders(List<OrderCreatedMessage> messages){
@@ -62,7 +42,7 @@ public class DeliveryService {
                 .onErrorReturn(false);
 
     }
-    private Delivery convertToEntity(OrderCreatedMessage message) {
+    public Delivery convertToEntity(OrderCreatedMessage message) {
         return Delivery.builder()
                 .merchantUid(message.getMerchantUid())
                 .status(message.getStatus())
