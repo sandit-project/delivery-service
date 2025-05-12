@@ -77,6 +77,10 @@ public class RabbitConfig {
         return new Queue("status-change.order-service", true);
     }
 
+    // 큐 12: 롤백 큐
+    @Bean
+    public Queue orderRollbackQueue() { return new Queue("order-rollback.order-service", true);}
+
     @Bean
     public Jackson2JsonMessageConverter rabbitMessageConverter(ObjectMapper mapper) {
         mapper.registerModule(new JavaTimeModule());
@@ -92,6 +96,7 @@ public class RabbitConfig {
         rabbitAdmin.declareQueue(orderCancelledQueue());
         rabbitAdmin.declareQueue(orderCookingQueue());
         rabbitAdmin.declareQueue(statusChangeQueue());
+        rabbitAdmin.declareQueue(orderRollbackQueue());
         // 메뉴 큐 등록
         rabbitAdmin.declareQueue(menuAddQueue());
         rabbitAdmin.declareQueue(menuUpdateQueue());
@@ -108,6 +113,15 @@ public class RabbitConfig {
                 .bind(orderCookingQueue()) // order-cooking.order-service
                 .to(new DirectExchange("order-cooking")) // 메시지를 보낸 exchange
                 .with("#"); // 정확히 같은 routing key 사용
+    }
+
+    // 롤백 바인딩
+    @Bean
+    public Binding rollbackBinding() {
+        return BindingBuilder
+                .bind(orderRollbackQueue())
+                .to(new DirectExchange("order-rollback"))
+                .with("#"); // 메시지 routing key 와 정확히 일치
     }
 
 }
