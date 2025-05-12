@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -80,8 +81,10 @@ public class DeliveryService {
                 .map(this::convertToOrderCreatedMessage);
     }
 
+    @Transactional
     public Mono<RabbitResponseDTO> startDelivery(DeliveryStartRequestDTO deliveryStartRequestDTO) {
-        log.info("start dto is :: {}",deliveryStartRequestDTO.toString());
+        log.info("start dto is :: {}", deliveryStartRequestDTO.toString());
+
         return deliveryRepository.findCookingByMerchantUid(deliveryStartRequestDTO.getMerchantUid())
                 .switchIfEmpty(Mono.error(new RuntimeException("배송 정보 없음")))
                 .flatMap(delivery -> {
@@ -100,9 +103,9 @@ public class DeliveryService {
                             .build();
 
                     // 2. DB 저장
-                    return deliveryRepository.save(updated);
+                    return deliveryRepository.save(updated)
+                            .map(saved -> convertToOrderCreatedMessage(saved));
                 })
-                .map(this::convertToOrderCreatedMessage)
                 .flatMap(message -> {
                     try {
                         // 3. 메시지 큐 전송
@@ -122,11 +125,22 @@ public class DeliveryService {
                                 .message("배달 시작에 실패 했습니다!!")
                                 .build());
                     }
+                })
+                .onErrorResume(error -> {
+                    // DB 처리나 큐 전송 중 예외 발생 시 추가 처리
+                    log.error("전체 처리 중 예외 발생", error);
+                    return Mono.just(RabbitResponseDTO.builder()
+                            .isSuccess(false)
+                            .message("배달 시작 과정에서 오류가 발생했습니다.")
+                            .build());
                 });
     }
 
+
+    @Transactional
     public Mono<RabbitResponseDTO> completeDelivery(DeliveryCompleteRequestDTO deliveryCompleteRequestDTO) {
-        log.info("complete dto is :: {}", deliveryCompleteRequestDTO.toString());
+        log.info("complete dto is :: {}", deliveryCompleteRequestDTO);
+
         return deliveryRepository.findDeliveringByMerchantUid(deliveryCompleteRequestDTO.getMerchantUid())
                 .switchIfEmpty(Mono.error(new RuntimeException("배송 정보 없음")))
                 .flatMap(delivery -> {
@@ -144,29 +158,38 @@ public class DeliveryService {
                             .version(delivery.version())
                             .build();
 
-                    // 2. DB 저장
-                    return deliveryRepository.save(updated);
+                    // 2. DB 저장 후 메시지 변환
+                    return deliveryRepository.save(updated)
+                            .map(this::convertToOrderCreatedMessage);
                 })
                 .flatMap(message -> {
                     try {
-                        // 2. 메시지 큐 전송
+                        // 3. 메시지 큐 전송
                         rabbitTemplate.convertAndSend("status-change.order-service", message);
                         log.info("배달완료 큐로 보낸 메시지: {}", message);
 
-                        // 3. 성공 응답 반환
+                        // 4. 성공 응답 반환
                         return Mono.just(RabbitResponseDTO.builder()
                                 .isSuccess(true)
                                 .message("배달이 완료 되었습니다.")
                                 .build());
                     } catch (Exception e) {
-                        // 예외 발생 시 실패 응답 반환
-                        log.error("배달 완료 실패", e);
+                        // 큐 전송 실패
+                        log.error("배달 완료 큐 전송 실패", e);
                         return Mono.just(RabbitResponseDTO.builder()
                                 .isSuccess(false)
                                 .message("배달 완료에 실패 했습니다!!")
                                 .build());
                     }
+                })
+                .onErrorResume(error -> {
+                    log.error("배달 완료 처리 중 예외 발생", error);
+                    return Mono.just(RabbitResponseDTO.builder()
+                            .isSuccess(false)
+                            .message("배달 완료 과정에서 오류가 발생했습니다.")
+                            .build());
                 });
     }
+
 }
 
