@@ -94,6 +94,35 @@ public class RabbitConfig {
         return new Jackson2JsonMessageConverter(mapper);
     }
 
+
+    @Bean
+    public DirectExchange orderCookingExchange() {
+        return new DirectExchange("order-cooking", true, false);
+    }
+
+    @Bean
+    public DirectExchange orderRollbackExchange() {
+        return new DirectExchange("order-rollback", true, false);
+    }
+
+    // 큐 바인딩
+    @Bean
+    public Binding cookingBinding() {
+        return BindingBuilder
+                .bind(orderCookingQueue()) // order-cooking.order-service
+                .to(orderCookingExchange()) // 메시지를 보낸 exchange
+                .with("#"); // 정확히 같은 routing key 사용
+    }
+
+    // 롤백 바인딩
+    @Bean
+    public Binding rollbackBinding() {
+        return BindingBuilder
+                .bind(orderRollbackQueue())
+                .to(orderRollbackExchange())
+                .with("#"); // 메시지 routing key 와 정확히 일치
+    }
+
     // RabbitAdmin으로 큐 선언 보장
     @Bean
     public RabbitAdmin rabbitAdmin() {
@@ -113,24 +142,6 @@ public class RabbitConfig {
         rabbitAdmin.declareQueue(storeUpdateQueue());
         rabbitAdmin.declareQueue(storeDeleteQueue());
         return rabbitAdmin;
-    }
-
-    // 큐 바인딩
-    @Bean
-    public Binding cookingBinding() {
-        return BindingBuilder
-                .bind(orderCookingQueue()) // order-cooking.order-service
-                .to(new DirectExchange("order-cooking")) // 메시지를 보낸 exchange
-                .with("#"); // 정확히 같은 routing key 사용
-    }
-
-    // 롤백 바인딩
-    @Bean
-    public Binding rollbackBinding() {
-        return BindingBuilder
-                .bind(orderRollbackQueue())
-                .to(new DirectExchange("order-rollback"))
-                .with("#"); // 메시지 routing key 와 정확히 일치
     }
 
 }
