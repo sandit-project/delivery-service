@@ -100,6 +100,8 @@ public class RabbitConfig {
         // 메뉴 큐 등록
         rabbitAdmin.declareQueue(menuAddQueue());
         rabbitAdmin.declareQueue(menuUpdateQueue());
+        rabbitAdmin.declareQueue(ingredientAddQueue());
+        rabbitAdmin.declareQueue(ingredientUpdateQueue());
         // 지점 큐 등록
         rabbitAdmin.declareQueue(storeAddQueue());
         rabbitAdmin.declareQueue(storeUpdateQueue());
