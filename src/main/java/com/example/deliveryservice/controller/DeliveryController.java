@@ -24,9 +24,10 @@ public class DeliveryController {
                 .collectList();
     }
 
-    @GetMapping("/status/delivering")
-    public Mono<List<OrderCreatedMessage>> getDeliveringOrders() {
-        return deliveryService.getDeliveringOrders()
+    @GetMapping("status/delivering/{type}/{uid}")
+    public Mono<List<OrderCreatedMessage>> getDeliveringOrders(@PathVariable(name = "type")String type,
+                                                               @PathVariable(name = "uid")Integer uid) {
+        return deliveryService.getDeliveringOrders(type,uid)
                 .collectList();
     }
 

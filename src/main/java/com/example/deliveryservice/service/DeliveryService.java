@@ -10,13 +10,18 @@ import com.example.deliveryservice.type.OrderStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -24,8 +29,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DeliveryService {
     private final RabbitTemplate rabbitTemplate; // RabbitMQ 직접 접근용
-    private final ObjectMapper objectMapper;
     private final DeliveryRepository deliveryRepository;
+    private final RedissonClient redissonClient;
 
     // DB저장 로직
     public Mono<Boolean> saveOrders(List<OrderCreatedMessage> messages){
@@ -76,66 +81,93 @@ public class DeliveryService {
     }
 
     // 배달중 상태 주문 조회
-    public Flux<OrderCreatedMessage> getDeliveringOrders() {
-        return deliveryRepository.getDeliveringOrders()
-                .map(this::convertToOrderCreatedMessage);
+    public Flux<OrderCreatedMessage> getDeliveringOrders(String type,Integer uid) {
+        if("user".equals(type)){
+            return deliveryRepository.getDeliveringByUserUid(uid)
+                    .map(this::convertToOrderCreatedMessage);
+        }else{
+            return deliveryRepository.getDeliveringBySocialUid(uid)
+                    .map(this::convertToOrderCreatedMessage);
+        }
     }
 
     @Transactional
     public Mono<RabbitResponseDTO> startDelivery(DeliveryStartRequestDTO deliveryStartRequestDTO) {
         log.info("start dto is :: {}", deliveryStartRequestDTO.toString());
 
-        return deliveryRepository.findCookingByMerchantUid(deliveryStartRequestDTO.getMerchantUid())
-                .switchIfEmpty(Mono.error(new RuntimeException("배송 정보 없음")))
-                .flatMap(delivery -> {
-                    // 1. 상태 변경
-                    Delivery updated = Delivery.builder()
-                            .uid(delivery.uid())
-                            .merchantUid(delivery.merchantUid())
-                            .riderUserUid(deliveryStartRequestDTO.getRiderUserUid())
-                            .riderSocialUid(deliveryStartRequestDTO.getRiderSocialUid())
-                            .addressStart(delivery.addressStart())
-                            .addressDestination(delivery.addressDestination())
-                            .deliveryAcceptTime(deliveryStartRequestDTO.getDeliveryAcceptTime())
-                            .deliveredTime(delivery.deliveredTime())
-                            .status(OrderStatus.ORDER_DELIVERING)
-                            .version(delivery.version())
-                            .build();
+        String lockKey = "lock:delivery:start:" + deliveryStartRequestDTO.getMerchantUid();
+        RLock lock = redissonClient.getLock(lockKey);
 
-                    // 2. DB 저장
-                    return deliveryRepository.save(updated)
-                            .map(saved -> convertToOrderCreatedMessage(saved));
-                })
-                .flatMap(message -> {
-                    try {
-                        // 3. 메시지 큐 전송
-                        rabbitTemplate.convertAndSend("status-change.order-service", message);
-                        log.info("배달중 큐로 보낸 메시지: {}", message);
-
-                        // 4. 성공 응답 반환
-                        return Mono.just(RabbitResponseDTO.builder()
-                                .isSuccess(true)
-                                .message("배달이 시작 되었습니다.")
-                                .build());
-                    } catch (Exception e) {
-                        // 예외 발생 시 실패 응답 반환
-                        log.error("배달 시작 실패", e);
-                        return Mono.just(RabbitResponseDTO.builder()
-                                .isSuccess(false)
-                                .message("배달 시작에 실패 했습니다!!")
-                                .build());
+        return Mono.fromCallable(() -> {
+                    boolean acquired = lock.tryLock(3, 10, TimeUnit.SECONDS); // 최대 3초 대기, 10초 유지
+                    if (!acquired) {
+                        throw new IllegalStateException("이미 다른 요청이 처리 중입니다.");
                     }
+                    return true;
                 })
+                .subscribeOn(Schedulers.boundedElastic()) // 블로킹 코드 offload
+                .flatMap(locked -> deliveryRepository.findCookingByMerchantUid(deliveryStartRequestDTO.getMerchantUid())
+                        .switchIfEmpty(Mono.error(new RuntimeException("배송 정보 없음")))
+                        .flatMap(delivery -> {
+                            Delivery updated = Delivery.builder()
+                                    .uid(delivery.uid())
+                                    .merchantUid(delivery.merchantUid())
+                                    .riderUserUid(deliveryStartRequestDTO.getRiderUserUid())
+                                    .riderSocialUid(deliveryStartRequestDTO.getRiderSocialUid())
+                                    .addressStart(delivery.addressStart())
+                                    .addressDestination(delivery.addressDestination())
+                                    .deliveryAcceptTime(deliveryStartRequestDTO.getDeliveryAcceptTime())
+                                    .deliveredTime(delivery.deliveredTime())
+                                    .status(OrderStatus.ORDER_DELIVERING)
+                                    .version(delivery.version())
+                                    .build();
+                            System.out.println("DB 저장하기 전");
+
+                            // updateDelivery 메서드 호출 후 결과 처리
+                            return deliveryRepository.updateDelivery(updated)
+                                    .flatMap(updatedCount -> {
+                                        if (updatedCount > 0) {
+                                            // 업데이트 성공
+                                            return Mono.just(updated);
+                                        } else {
+                                            // 업데이트 실패
+                                            return Mono.error(new RuntimeException("배달 상태 업데이트 실패"));
+                                        }
+                                    })
+                                    .map(this::convertToOrderCreatedMessage);
+                        })
+                        .flatMap(message -> {
+                            try {
+                                System.out.println("큐에 보내기 전");
+                                rabbitTemplate.convertAndSend("status-change.order-service", message);
+                                log.info("배달중 큐로 보낸 메시지: {}", message);
+
+                                return Mono.just(RabbitResponseDTO.builder()
+                                        .isSuccess(true)
+                                        .message("배달이 시작 되었습니다.")
+                                        .build());
+                            } catch (Exception e) {
+                                log.error("배달 시작 실패", e);
+                                return Mono.just(RabbitResponseDTO.builder()
+                                        .isSuccess(false)
+                                        .message("배달 시작에 실패 했습니다!!")
+                                        .build());
+                            }
+                        }))
                 .onErrorResume(error -> {
-                    // DB 처리나 큐 전송 중 예외 발생 시 추가 처리
                     log.error("전체 처리 중 예외 발생", error);
                     return Mono.just(RabbitResponseDTO.builder()
                             .isSuccess(false)
-                            .message("배달 시작 과정에서 오류가 발생했습니다.")
+                            .message(error.getMessage())
                             .build());
+                })
+                .doFinally(signalType -> {
+                    if (lock.isHeldByCurrentThread()) {
+                        lock.unlock();
+                        log.debug("락 해제 완료: {}", lockKey);
+                    }
                 });
     }
-
 
     @Transactional
     public Mono<RabbitResponseDTO> completeDelivery(DeliveryCompleteRequestDTO deliveryCompleteRequestDTO) {
@@ -158,17 +190,26 @@ public class DeliveryService {
                             .version(delivery.version())
                             .build();
 
-                    // 2. DB 저장 후 메시지 변환
-                    return deliveryRepository.save(updated)
+                    // 2. DB 저장 후 업데이트된 행의 수 처리
+                    return deliveryRepository.updateDelivery(updated)
+                            .flatMap(updatedCount -> {
+                                if (updatedCount > 0) {
+                                    // 3. 업데이트 성공 시 메시지 변환
+                                    return Mono.just(updated);
+                                } else {
+                                    // 4. 업데이트 실패 시 에러 처리
+                                    return Mono.error(new RuntimeException("배달 상태 업데이트 실패"));
+                                }
+                            })
                             .map(this::convertToOrderCreatedMessage);
                 })
                 .flatMap(message -> {
                     try {
-                        // 3. 메시지 큐 전송
+                        // 5. 메시지 큐 전송
                         rabbitTemplate.convertAndSend("status-change.order-service", message);
                         log.info("배달완료 큐로 보낸 메시지: {}", message);
 
-                        // 4. 성공 응답 반환
+                        // 6. 성공 응답 반환
                         return Mono.just(RabbitResponseDTO.builder()
                                 .isSuccess(true)
                                 .message("배달이 완료 되었습니다.")
@@ -190,6 +231,7 @@ public class DeliveryService {
                             .build());
                 });
     }
+
 
 }
 
