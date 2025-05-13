@@ -1,0 +1,32 @@
+body {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+h1, h2 {
+    color: #333;
+}
+input, textarea, button {
+    display: block;
+    margin: .5rem 0;
+    width: 100%;
+    padding: .5rem;
+    box-sizing: border-box;
+}
+button {
+    cursor: pointer;
+}
+pre {
+    background: #f4f4f4;
+    padding: 1rem;
+    overflow-x: auto;
+}
+ul {
+    list-style: none;
+    padding: 0;
+}
+li {
+    padding: .3rem 0;
+    border-bottom: 1px solid #ddd;
+}

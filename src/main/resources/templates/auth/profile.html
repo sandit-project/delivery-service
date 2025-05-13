@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.7.1.js" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=e0a9cdd5535d7bb018489c5662b3b5ae"></script>
+    <script th:src="@{/js/common.js}"></script>
+    <script th:src="@{/js/auth/profile.js}"></script>
+    <script th:src="@{/js/kakaoMobility.js}"></script>
+    <link th:href="@{/css/auth/profile.css}" rel="stylesheet">
+</head>
+<body>
+<header>
+    <div class="header-container">
+        <h1 id="welcome-message"></h1>
+    </div>
+    <div class="group-btn">
+        <button class="update-btn" id="updateProfileBtn">수정하기</button>
+    </div>
+</header>
+<main>
+    <div>
+        <input id="hiddenUserId" type="hidden">
+        <input id="hiddenUserName" type="hidden">
+        <input id="hiddenUserRole" type="hidden">
+    </div>
+    <div class="detail-container">
+        <div class="info-section">
+            <div class="user-profile">
+                <P>이름 : </P>
+                <P id="user_name"></P>
+            </div>
+            <div class="user-profile">
+                <P>포인트 : </P>
+                <P id="user_point"></P>
+            </div>
+            <div class="user-profile">
+                <P>이메일 : </P>
+                <P id="user_email"></P>
+            </div>
+            <div class="user-profile">
+                <P>연락처 : </P>
+                <P id="user_phone"></P>
+            </div>
+            <div class="user-profile">
+                <P>가입일 : </P>
+                <P id="created_date"></P>
+            </div>
+            <div class="user-profile">
+                <P>가입경로 : </P>
+                <P id="user_type"></P>
+            </div>
+            <div class="user-profile">
+                <P>메인 주소 : </P>
+                <P id="main_address"></P>
+            </div>
+            <div class="user-profile">
+                <P>추가 주소 1 : </P>
+                <P id="sub_address1"></P>
+            </div>
+            <div class="user-profile">
+                <P>추가 주소 2 : </P>
+                <P id="sub_address2"></P>
+            </div>
+        </div>
+        <div class="info-section">
+            <div class="delivery-info">
+                <p>배달 현황 나올 예정입니다</p>
+                <div>
+                    <div id="map" style="width:350px;height:350px;"></div>
+                </div>
+            </div>
+            <div class="order-info">
+                <p>주문 내역 나올 예정입니다</p>
+            </div>
+        </div>
+    </div>
+</main>
+<footer>
+    <p>&copy; 2023 회사명. All rights reserved.</p>
+</footer>
+</body>
+</html>

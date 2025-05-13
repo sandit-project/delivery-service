@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script th:src="@{/js/common.js}"></script>
+    <script th:src="@{/js/menu/sauceList.js}"></script>
+    <link th:href="@{/css/menu/commonList.css}" rel="stylesheet">
+
+    <title>소스 목록</title>
+</head>
+<body>
+<h1>소스 목록</h1>
+<table>
+    <thead>
+    <tr>
+
+        <th>이름</th>
+        <th>칼로리</th>
+        <th>가격</th>
+        <th>이미지</th>
+        <th>상태</th>
+        <th>수정 / 삭제</th>
+
+    </tr>
+    </thead>
+    <tbody id="sauceTableBody">
+<!--    <tr th:each="sauce : ${sauces}">-->
+<!--        <td th:text="${sauce.uid}"></td>-->
+<!--        <td th:text="${sauce.sauceName}"></td>-->
+<!--        <td th:text="${sauce.calorie}"></td>-->
+<!--        <td th:text="${sauce.price}"></td>-->
+<!--        <td><img th:src="${sauce.img}" alt="소스 이미지" width="50"></td>-->
+<!--        <td th:text="${sauce.status}"></td>-->
+<!--        <td>-->
+<!--            <a th:href="@{/sauces/edit(sauceName=${sauce.sauceName})}">수정</a>-->
+<!--        </td>-->
+<!--        <td>-->
+<!--            <button class="delete-btn" th:data-saucename="${sauce.sauceName}">삭제</button>-->
+<!--        </td>-->
+<!--    </tr>-->
+    </tbody>
+</table>
+<br>
+<button onclick="location.href='/sauces/admin'">새 소스 등록</button>
+<button onclick="location.href='/admin'" style="margin-left: 10px;">메인으로 가기</button>
+</body>
+</html>

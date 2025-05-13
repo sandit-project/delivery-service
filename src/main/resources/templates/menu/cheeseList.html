@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script th:src="@{/js/common.js}"></script>
+    <script th:src="@{/js/menu/cheeseList.js}"></script>
+    <link th:href="@{/css/menu/commonList.css}" rel="stylesheet">
+    <title>치즈 목록</title>
+</head>
+<body>
+<h1>치즈 목록</h1>
+<table>
+    <thead>
+    <tr>
+
+        <th>이름</th>
+        <th>칼로리</th>
+        <th>가격</th>
+        <th>이미지</th>
+        <th>상태</th>
+        <th>수정 / 삭제</th>
+
+    </tr>
+    </thead>
+    <tbody id="cheeseTableBody">
+<!--    <tr th:each="cheese : ${cheeses}">-->
+<!--        <td th:text="${cheese.uid}"></td>-->
+<!--        <td th:text="${cheese.cheeseName}"></td>-->
+<!--        <td th:text="${cheese.calorie}"></td>-->
+<!--        <td th:text="${cheese.price}"></td>-->
+<!--        <td><img th:src="${cheese.img}" alt="치즈 이미지" width="50"></td>-->
+<!--        <td th:text="${cheese.status}"></td>-->
+<!--        <td>-->
+<!--            <a th:href="@{/cheeses/edit(cheeseName=${cheese.cheeseName})}">수정</a>-->
+<!--        </td>-->
+<!--        <td>-->
+<!--            <button class="delete-btn" th:data-cheesename="${cheese.cheeseName}">삭제</button>-->
+<!--        </td>-->
+    </tr>
+    </tbody>
+</table>
+<br>
+<button onclick="location.href='/cheeses/admin'">새 치즈 등록</button>
+<button onclick="location.href='/admin'" style="margin-left: 10px;">메인으로 가기</button>
+</body>
+</html>

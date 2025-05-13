@@ -71,6 +71,12 @@ public class RabbitConfig {
         return new Queue("store-update.store-service", true);
     }
 
+    // 큐  스토어 삭제 큐
+    @Bean
+    public Queue storeDeleteQueue() {
+        return new Queue("store-delete.store-service", true);
+    }
+
     // 큐 11: status 변경 큐
     @Bean
     public Queue statusChangeQueue() {
@@ -105,6 +111,7 @@ public class RabbitConfig {
         // 지점 큐 등록
         rabbitAdmin.declareQueue(storeAddQueue());
         rabbitAdmin.declareQueue(storeUpdateQueue());
+        rabbitAdmin.declareQueue(storeDeleteQueue());
         return rabbitAdmin;
     }
 

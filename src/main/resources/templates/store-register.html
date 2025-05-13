@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:inline="javascript">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.7.1.js" crossorigin="anonymous"></script>
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script th:src="@{/js/common.js}"></script>
+    <script th:src="@{/js/findAddress.js}"></script>
+    <script th:src="@{/js/storeRegister.js}"></script>
+    <link th:href="@{/css/storeRegister.css}" rel="stylesheet">
+    <title>지점 등록</title>
+</head>
+<body>
+
+<div class="storeRegister-container">
+    <h2 id="title">지점 입력</h2>
+    <div>
+
+        <div class="form-group">
+            <label for="store_name">지점 이름</label>
+            <input type="text" id="store_name" placeholder="지점이름을 입력하세요" required>
+            <label for="store_name">지점 관리자</label>
+            <input type="text" id="store_manager_uid" placeholder="지점 관리자 UID를 입력하세요" required>
+        </div>
+
+        <div class="form-group">
+            <label for="store_address_base">주소</label>
+            <input type="text" id="store_address_base" placeholder="주소를 입력하세요" required >
+            <label for="store_address_base">상세주소</label>
+            <input type="text" id="store_address_detail" placeholder="상세 주소를 입력하세요" required >
+            <input type="hidden" id="store_latitude" name="latitude">
+            <input type="hidden" id="store_longitude" name="longitude">
+        </div>
+
+        <div class="form-group">
+            <label for="store_postcode">우편번호</label>
+            <input type="text" id="store_postcode" placeholder="우편번호를 입력하세요" required>
+        </div>
+
+
+
+        <!-- 역할 선택 요소 추가 -->
+      <!--  <div class="form-group">
+            <label for="role">역할 선택</label>
+            <select id="role" required>
+                <option value="ROLE_USER">일반 사용자</option>
+                <option value="ROLE_ADMIN">관리자</option>
+            </select>
+        </div>
+      -->
+    <div class="button-container">
+        <input id="storeRegister" type="submit" value="지점 가입">
+        <button type="button" id="prevBtn" class="btn-prev">이전 화면</button>
+    </div>
+
+    </div>
+</div>
+
+
+
+</body>
+</html>

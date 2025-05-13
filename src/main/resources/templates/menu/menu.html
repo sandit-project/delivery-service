@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.7.1.js" crossorigin="anonymous"></script>
+    <script th:src="@{/js/common.js}"></script>
+    <script th:src="@{/js/menu.js}"></script>
+    <link th:href="@{/css/menu.css}" rel="stylesheet">
+</head>
+<body> <!-- 헤더 -->
+<header>
+    <div class="logo">Restaurant Figma</div>
+    <nav>
+        <ul>
+            <li><a href="menu.html">Menu</a></li>
+            <li><a href="gallery.html">Gallery</a></li>
+            <li><a href="about_us.html">About Us</a></li>
+            <li><a href="help.html">Help</a></li>
+            <li><a href="#" class="order-now">Order Now</a></li>
+            <li><button class="order-now" id="logoutBtn">logout</button></li>
+            <li><button class="order-now" id="deleteBtn">deleteAcc</button></li>
+            <li><button class="order-now" id="profileBtn">profile</button></li>
+        </ul>
+    </nav>
+</header> <!-- 카테고리 내비게이션 -->
+<div class="categories">
+    <ul>
+        <li class="active">Burgers</li>
+        <li>Pizza</li>
+        <li>Sushi</li>
+        <li>Soup</li>
+        <li>Drink</li>
+        <li>Desserts</li>
+        <li>Starter</li>
+    </ul>
+</div> <!-- 메인 컨텐츠 -->
+<main> <!-- 첫 번째 버거 섹션 -->
+    <div>
+        <input id="hiddenUserId" type="hidden">
+        <input id="hiddenUserName" type="hidden">
+
+        <h1 id="welcome-message"></h1>
+    </div>
+    <section class="menu-section"><h2>Burgers</h2>
+        <div class="menu-items">
+            <div class="menu-item"><h3>Pattie Burger</h3>
+                <p class="price">$21</p>
+                <p class="description">cheese burger</p>
+                <div class="add-to-cart">$0
+                    <button>Add to Cart &gt;&gt;0</button>
+                </div>
+            </div>
+            <div class="menu-item"><h3>Smoked Burger</h3>
+                <p class="price">$13</p>
+                <p class="description">Smoky touch</p>
+                <div class="add-to-cart">$0
+                    <button>Add to Cart &gt;&gt;0</button>
+                </div>
+            </div>
+            <div class="menu-item"><h3>Mighty Burger</h3>
+                <p class="price">$23</p>
+                <p class="description">Delicioaso</p>
+                <div class="add-to-cart">$0
+                    <button>Add to Cart &gt;&gt;0</button>
+                </div>
+            </div>
+        </div>
+    </section><!-- 두 번째 버거 섹션 -->
+    <section class="menu-section">
+        <div class="menu-items">
+            <div class="menu-item">
+                <h3>Cruch Burger</h3>
+                <p class="price">$34</p>
+                <p class="description">more cruches</p>
+                <div class="add-to-cart">$0
+                    <button>Add to Cart &gt;&gt;0</button>
+                </div>
+            </div>
+            <div class="menu-item">
+                <h3>Saucy Burger</h3>
+                <p class="price">$17</p>
+                <p class="description">extra saucy</p>
+                <div class="add-to-cart">$0
+                    <button>Add to Cart &gt;&gt;0</button>
+                </div>
+            </div>
+            <div class="menu-item">
+                <h3>Zingrata Burger</h3>
+                <p class="price">$22</p>
+                <p class="description">kgkjhgkj kjhgkjhg</p>
+                <div class="add-to-cart">$0
+                    <button>Add to Cart &gt;&gt;0</button>
+                </div>
+            </div>
+        </div>
+        <div class="see-more">
+            <a href="#">See More</a>
+        </div>
+    </section>
+
+    <!-- 태그라인 영역 -->
+    <section class="tagline">
+        <p>Savor the artistry where every dish is a culinary masterpiece</p>
+    </section>
+</main> <!-- 푸터 -->
+<footer>
+    <div class="footer-links"><h4>Useful Links</h4>
+        <ul>
+            <li><a href="about_us.html">About Us</a></li>
+            <li><a href="gallery.html">Gallery</a></li>
+            <li><a href="#">FAQs</a></li>
+            <li><a href="menu.html">Main Menu</a></li>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#">Offers</a></li>
+            <li><a href="#">Menus</a></li>
+            <li><a href="#">Contact Us</a></li>
+        </ul>
+    </div>
+    <div class="footer-contact"><p>example@gmail.com</p>
+        <p>+64 958 248 966</p></div>
+    <div class="footer-social"><p>Social media</p></div>
+    <div class="footer-bottom"><p>Reservations</p>
+        <p>&copy; 2023 OneKode | All rights reserved</p>
+        <p>Built on Bubble</p></div>
+</footer>
+</body>
+</html>

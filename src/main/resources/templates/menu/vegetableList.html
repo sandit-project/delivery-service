@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script th:src="@{/js/common.js}"></script>
+    <script th:src="@{/js/menu/vegetableList.js}"></script>
+    <link th:href="@{/css/menu/commonList.css}" rel="stylesheet">
+    <title>야채 목록</title>
+</head>
+<body>
+<h1>야채 목록</h1>
+<table>
+    <thead>
+    <tr>
+
+        <th>이름</th>
+        <th>칼로리</th>
+        <th>가격</th>
+        <th>이미지</th>
+        <th>상태</th>
+        <th>수정 / 삭제</th>
+
+    </tr>
+    </thead>
+    <tbody id="vegetableTableBody">
+<!--    <tr th:each="vegetable : ${vegetables}">-->
+<!--        <td th:text="${vegetable.uid}"></td>-->
+<!--        <td th:text="${vegetable.vegetableName}"></td>-->
+<!--        <td th:text="${vegetable.calorie}"></td>-->
+<!--        <td th:text="${vegetable.price}"></td>-->
+<!--        <td><img th:src="${vegetable.img}" alt="야채 이미지" width="50"></td>-->
+<!--        <td th:text="${vegetable.status}"></td>-->
+<!--        <td>-->
+<!--            <a th:href="@{/vegetables/edit(vegetableName=${vegetable.vegetableName})}">수정</a>-->
+<!--        </td>-->
+<!--        <td>-->
+<!--            <button class="delete-btn" th:data-vegetablename="${vegetable.vegetableName}">삭제</button>-->
+<!--        </td>-->
+<!--    </tr>-->
+    </tbody>
+</table>
+<br>
+<button onclick="location.href='/vegetables/admin'">새 야채 등록</button>
+<button onclick="location.href='/admin'" style="margin-left: 10px;">메인으로 가기</button>
+</body>
+</html>
