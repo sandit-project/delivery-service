@@ -1,0 +1,73 @@
+/* Reset 기본 설정 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+}
+
+/* 헤더 영역 */
+header {
+    text-align: center;
+    padding: 30px 0;
+    background-color: #ffffff;
+    border-bottom: 1px solid #ddd;
+}
+
+header h1 {
+    font-size: 28px;
+    color: #333;
+}
+
+/* 메인 영역 */
+main {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* 주문 테이블 */
+#order-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    box-shadow: 0 0 8px rgba(0,0,0,0.05);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#order-table thead {
+    background-color: #e67e22;
+    color: #ffffff;
+}
+
+#order-table thead th {
+    padding: 14px;
+    font-size: 16px;
+    text-align: center;
+}
+
+#order-table tbody tr {
+    border-bottom: 1px solid #eee;
+}
+
+#order-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+#order-table tbody td {
+    padding: 12px;
+    font-size: 14px;
+    text-align: center;
+    color: #555;
+}
+
+/* 행 hover 효과 */
+#order-table tbody tr:hover {
+    background-color: #f9f9f9;
+}

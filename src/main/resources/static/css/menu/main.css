@@ -1,0 +1,113 @@
+/* 🔵 기본 스타일 */
+body {
+    font-family: 'Nunito', 'Noto Sans KR', sans-serif; /* 둥근 서체 적용 */
+    background-color: #f2e1c1;
+    margin: 0;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #3b2a1a;
+}
+
+/* 🔵 컨테이너 */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #f9f3e0, #f3e1b7);
+    border: 2px solid #c69c6d;
+    transition: transform 0.3s ease-in-out;
+}
+
+/* 🔵 hover 효과 */
+.container:hover {
+    transform: translateY(-5px);
+}
+
+/* 🔵 제목 */
+h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #4d3321;
+    font-size: 2rem;
+    font-family: 'Nunito', 'Noto Sans KR', sans-serif; /* 둥근 폰트 적용 */
+}
+
+/* 🔵 섹션 */
+section {
+    margin-bottom: 2rem;
+}
+
+/* 🔵 섹션 제목 */
+h2 {
+    color: #7b4f2b;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-family: 'Nunito', 'Noto Sans KR', sans-serif; /* 둥근 폰트 적용 */
+}
+
+/* 🔵 셀렉트 박스 스타일 */
+select {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #8a5d3b;
+    outline: none;
+    background-color: #f5e1a4;
+    color: #3b2a1a;
+    font-family: 'Nunito', 'Noto Sans KR', sans-serif; /* 둥근 폰트 적용 */
+    transition: border-color 0.3s, background-color 0.3s ease;
+}
+
+/* 🔵 셀렉트 박스 포커스 시 스타일 */
+select:focus {
+    border-color: #c69c6d;
+    background-color: #f3e1b7;
+}
+
+/* 🔵 버튼 스타일 */
+button.main-btn {
+    background: linear-gradient(45deg, #a0522d, #8b5c32);
+    color: #fff;
+    padding: 12px 20px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-bottom: 2rem;
+    text-align: center;
+    width: 100%;
+    font-family: 'Nunito', 'Noto Sans KR', sans-serif; /* 버튼도 둥글게 */
+}
+
+button.main-btn:hover {
+    background: linear-gradient(45deg, #7b3f1d, #5b3d28);
+}
+
+/* 🔵 반응형 디자인 */
+@media (max-width: 768px) {
+    .container {
+        padding: 1.5rem;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+    }
+
+    h2 {
+        font-size: 1rem;
+    }
+
+    button.main-btn {
+        font-size: 1rem;
+    }
+}

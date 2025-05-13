@@ -1,0 +1,274 @@
+/* 🔵 Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', 'Noto Sans KR', 'Permanent Marker', sans-serif;
+    background: linear-gradient(135deg, #f8f1e6, #efe0c8);
+    color: #3b2a1a;
+}
+
+/* 🔵 헤더 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 5%;
+    background: #efe0c8;
+    border-bottom: 2px solid #d2b48c;
+}
+
+.site-title {
+    font-size: 34px;
+    font-weight: 800;
+    color: #5a3b26;
+    text-decoration: none;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.header-right {
+    display: flex;
+    gap: 25px;
+    align-items: center; /* 오른쪽 정렬 아이템 상하 가운데 정렬 */
+}
+
+.header-link {
+    text-decoration: none;
+    color: #6b4b34;
+    font-size: 16px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+    cursor: pointer;
+}
+
+.header-link:hover {
+    background-color: #d2b48c;
+}
+
+/* 🔵 네비게이션 */
+.navbar {
+    background: #d2b48c;
+    padding: 14px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* 네비게이션 바 아이템 상하 가운데 정렬 */
+}
+
+.navbar-links {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+}
+
+.nav-link {
+    text-decoration: none;
+    font-weight: 600;
+    color: #4a2f1d;
+    font-size: 16px;
+    padding: 10px 20px;
+    /*background-color: #c19a6b;*/
+    /*border-radius: 20px;*/
+    transition: background-color 0.3s;
+    cursor: pointer;
+}
+
+.nav-link:hover {
+    background-color: #8b5c32;
+    color: #fff3e0;
+}
+
+/* 🔵 드롭다운 */
+.dropdown {
+    position: relative;
+    display: inline-block;
+    align-self: center; /* 드롭다운 메뉴가 네비게이션 바 중앙에 위치하도록 설정 */
+}
+
+/* 드롭다운 토글 뒤에 화살표 추가 */
+.dropdown-toggle::after {
+    content: ' ▼';  /* 화살표 */
+    font-size: 0.6em;
+}
+
+/* 드롭다운 메뉴 스타일 */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: #fff8f0;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.15);
+    z-index: 1;
+    border-radius: 6px;
+    padding: 0.5rem 0;
+    left: 50%;  /* 부모 요소의 가운데로 설정 */
+    transform: translateX(-50%);  /* 왼쪽으로 50%만큼 이동하여 정확하게 가운데 정렬 */
+}
+
+/* 드롭다운 메뉴 아이템 스타일 */
+.dropdown-menu .dropdown-item {
+    color: #4e372a;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.3s;
+}
+
+/* 메뉴 아이템 hover 시 배경 색상 변경 */
+.dropdown-menu .dropdown-item:hover {
+    background-color: #fcebd5;
+}
+
+/* 드롭다운 메뉴가 보일 때 */
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+/* 🔵 메인 타이틀 */
+.main-heading {
+    text-align: center;
+    font-size: 40px;
+    margin: 60px 0 40px;
+    color: #543c2f;
+    font-weight: 900;
+}
+
+/* 🔵 메뉴 컨테이너 */
+.menu-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    justify-content: center;
+    padding: 30px 5%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* 🔵 메뉴 아이템 */
+.menu-item {
+    background: linear-gradient(145deg, #f9f3eb, #d8c1a5);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 6px 16px rgba(85, 54, 25, 0.15);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.3s ease-in-out;
+    height: 100%;
+}
+
+.menu-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(85, 54, 25, 0.2);
+}
+
+.menu-item img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 14px;
+}
+
+/* 🔵 메뉴 정보 */
+.menu-info {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* ✨ 설명이 남은 공간을 채움 */
+    justify-content: space-between;
+
+}
+
+.menu-info h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #4d3321;
+    margin-top: 12px;
+    margin-bottom: 6px;
+}
+
+.menu-info p {
+    font-size: 14px;
+    color: #7c5e45;
+    margin-bottom: 8px;
+}
+
+.menu-info span {
+    font-size: 16px;
+    font-weight: 700;
+    color: #5b3d28;
+}
+
+/* 🔵 장바구니 버튼 */
+.add-to-cart-btn {
+    background: linear-gradient(45deg, #a0522d, #8b5c32);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    transition: background 0.3s ease;
+    margin-top: 12px;
+    text-decoration: none;
+    cursor: pointer;
+    align-self: center; /* ✨ 버튼을 중앙 정렬 */
+}
+
+.add-to-cart-btn:hover {
+    background: linear-gradient(45deg, #7b3f1d, #5b3d28);
+}
+
+/* 🔵 푸터 */
+.footer {
+    background-color: #efe0c8;
+    padding: 25px 0;
+    text-align: center;
+    font-size: 13px;
+    color: #7b6149;
+}
+
+.footer-links {
+    margin-top: 10px;
+}
+
+.footer-link {
+    margin: 0 10px;
+    color: #7b6149;
+    text-decoration: none;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.footer-link:hover {
+    text-decoration: underline;
+}
+
+/* 🔵 반응형 */
+@media (max-width: 1024px) {
+    .menu-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .menu-container {
+        grid-template-columns: 1fr;
+    }
+
+    .menu-item {
+        width: 90%;
+        margin: 0 auto;
+    }
+
+    .main-heading {
+        font-size: 32px;
+    }
+}
+.menu-item a {
+    text-decoration: none;
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>주문 내역</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <link rel="stylesheet" th:href="@{/css/order/orderDetail.css}">
+  <script th:src="@{/js/common.js}"></script>
+  <script th:src="@{/js/auth/profile.js}"></script>
+  <script th:src="@{/js/findAddress.js}"></script>
+  <script th:src="@{/js/storeList.js}"></script>
+  <script th:src="@{/js/order/orderDetail.js}"></script>
+</head>
+<body>
+<header>
+  <h1>주문 내역</h1>
+</header>
+
+<main>
+  <table id="order-table">
+    <thead>
+    <tr>
+      <th>주문 번호</th>
+      <th>상태</th>
+      <th>지점명</th>
+      <th>메뉴</th>
+      <th>가격</th>
+      <th>수량</th>
+      <th>주문 시간</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- 데이터가 여기에 채워짐 -->
+    </tbody>
+  </table>
+</main>
+</body>
+</html>

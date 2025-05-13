@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>리뷰 관리</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/review/review.css}">
+    <script th:src="@{/js/common.js}"></script>
+    <script th:src="@{/js/review/review.js}"></script>
+</head>
+<body>
+<h1>리뷰 작성</h1>
+<form id="createForm">
+    <div>
+    <label>회원 이름:</label>
+    <span id="createUserName"></span>
+    </div>
+    <div>
+        <label for="createUserUid">User UID:</label>
+        <input type="number" id="createUserUid" placeholder="User UID" required />
+    </div>
+    <div>
+        <label for="createSocialUid">Social UID:</label>
+        <input type="number" id="createSocialUid" placeholder="Social UID" required />
+    </div>
+    <div>
+        <label for="createOrderUid">Order UID:</label>
+        <input type="number" id="createOrderUid" placeholder="Order UID" required />
+    </div>
+    <div>
+        <label for="createRate">평점 (1~5):</label>
+        <input type="number" id="createRate" placeholder="Rate" min="1" max="5" required />
+    </div>
+    <div>
+        <label for="createTitle">제목:</label>
+        <input type="text" id="createTitle" placeholder="Title" required />
+    </div>
+    <div>
+        <label for="createContent">내용:</label>
+        <textarea id="createContent" placeholder="Content" rows="4" required></textarea>
+    </div>
+    <button type="submit">리뷰 등록</button>
+</form>
+<pre id="createResponse"></pre>
+</body>
+</html>

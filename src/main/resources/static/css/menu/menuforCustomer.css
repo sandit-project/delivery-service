@@ -1,0 +1,112 @@
+/* 🔵 전체 레이아웃 */
+body {
+    font-family: 'Apple SD Gothic Neo', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f0e6;  /* 빈티지 베이지 */
+    color: #4e372a;  /* 짙은 브라운 텍스트 */
+}
+
+/* 🔵 네비게이션 바 */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #a97458;  /* 웜 브라운 */
+    padding: 0.8rem 1.5rem;
+    color: #fff8f0;
+    border-bottom: 2px solid #7b4f35;  /* 진한 갈색 강조선 */
+}
+
+.navbar-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.navbar-links .nav-link {
+    color: #fff8f0;
+    text-decoration: none;
+    margin-left: 1.2rem;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+}
+
+.navbar-links .nav-link:hover {
+    color: #fcebd5;  /* 밝은 베이지 톤 */
+}
+
+/* 🔵 메뉴 디테일 */
+.menu-detail-container {
+    max-width: 750px;
+    margin: 2.5rem auto;
+    background-color: #fdfaf6;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(80, 50, 20, 0.15);  /* 부드러운 그림자 */
+}
+
+.menu-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    color: #5c4033;  /* 다크 브라운 */
+}
+
+.menu-img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+
+/* 🔵 메뉴 설명 */
+.menu-info p {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0.5rem 0;
+    color: #7a5c48;  /* 웜 브라운 텍스트 */
+}
+
+/* 🔵 메뉴 태그 */
+.menu-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin: 1rem 0 1.5rem 0;
+}
+
+.tag {
+    background-color: #e8d3b9;  /* 라이트 샌드 */
+    color: #8b5e3c;  /* 러스트 브라운 */
+    padding: 0.4rem 0.9rem;
+    border-radius: 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    transition: background-color 0.3s ease;
+}
+
+.tag:hover {
+    background-color: #d6c0a8;  /* 약간 어두운 베이지 */
+}
+.tag-with-img {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+
+
+.tag-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #8b5e3c;  /* 강조를 위해 테두리 추가 (선택) */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);  /* 약간의 그림자 효과 (선택) */
+}

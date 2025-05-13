@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script th:src="@{/js/common.js}"></script>
+    <script src="/js/menu/sauceEdit.js"></script> <!-- 외부 JS 파일 -->
+    <link href="/css/menu/commonEdit.css" rel="stylesheet">
+    <title>소스 정보 수정</title>
+</head>
+<body>
+<div class="container">
+    <h1>소스 정보 수정</h1>
+    <form id="sauceEditForm" enctype="multipart/form-data">
+        <input type="hidden" id="uid" name="uid">
+
+        <div class="form-group">
+            <label for="sauceName">소스 이름</label>
+            <input type="text" id="sauceName" name="sauceName" required>
+        </div>
+
+        <div class="form-group">
+            <label for="calorie">칼로리</label>
+            <input type="number" id="calorie" name="calorie" required min="0">
+        </div>
+
+        <div class="form-group">
+            <label for="price">가격</label>
+            <input type="number" id="price" name="price" required min="0">
+        </div>
+
+        <div class="form-group">
+            <label for="status">상태</label>
+            <select id="status" name="status" required>
+                <option value="active">활성</option>
+                <option value="deleted">비활성</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>현재 이미지</label>
+            <br>
+            <img id="currentImg" src="" alt="소스 이미지" width="100">
+        </div>
+
+        <div class="form-group">
+            <label for="img">새 이미지 업로드</label>
+            <input type="file" id="img" name="file" accept="image/*">
+            <input type="hidden" id="imgUrl" name="img">
+        </div>
+
+        <div class="form-actions">
+            <button type="button" id="updateBtn">수정하기</button>
+            <button type="button" onclick="location.href='/sauces/list'">목록으로</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
