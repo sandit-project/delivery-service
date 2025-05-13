@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Table("delivery")
 public record Delivery(
         @Id
+        @Column("uid")
         Integer uid,
         @Column("rider_user_uid")
         Integer riderUserUid,
