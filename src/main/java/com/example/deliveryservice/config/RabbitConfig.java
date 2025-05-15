@@ -22,59 +22,10 @@ public class RabbitConfig {
 
     private final ConnectionFactory connectionFactory;
 
-    // 주문 취소 큐
-    @Bean
-    public Queue orderCancelledQueue() {
-        return new Queue("order-cancelled.order-service", true);
-    }
-
     // 조리중 큐
     @Bean
     public Queue orderCookingQueue() {
         return new Queue("order-cooking.order-service", true);
-    }
-
-    // 큐 7: 메뉴 등록 큐
-    @Bean
-    public Queue menuAddQueue() {
-        return new Queue("menu-add.menu-service", true);
-    }
-
-    // 큐 8: 메뉴 수정 큐
-    @Bean
-    public Queue menuUpdateQueue() {
-        return new Queue("menu-update.menu-service", true);
-    }
-
-    // 큐 9: 재료 등록 큐
-    @Bean
-    public Queue ingredientAddQueue() {
-        return new Queue("ingredient-add.menu-service", true);
-    }
-
-    // 큐 10: 재료 수정 큐
-    @Bean
-    public Queue ingredientUpdateQueue() {
-        return new Queue("ingredient-update.menu-service", true);
-    }
-
-
-    // 큐 11: 메뉴 등록 큐
-    @Bean
-    public Queue storeAddQueue() {
-        return new Queue("store-add.store-service", true);
-    }
-
-    // 큐 12: 메뉴 수정 큐
-    @Bean
-    public Queue storeUpdateQueue() {
-        return new Queue("store-update.store-service", true);
-    }
-
-    // 큐  스토어 삭제 큐
-    @Bean
-    public Queue storeDeleteQueue() {
-        return new Queue("store-delete.store-service", true);
     }
 
     // 큐 11: status 변경 큐
@@ -128,19 +79,9 @@ public class RabbitConfig {
     public RabbitAdmin rabbitAdmin() {
         RabbitAdmin rabbitAdmin = new RabbitAdmin(connectionFactory);
         // 주문 큐 등록
-        rabbitAdmin.declareQueue(orderCancelledQueue());
         rabbitAdmin.declareQueue(orderCookingQueue());
         rabbitAdmin.declareQueue(statusChangeQueue());
         rabbitAdmin.declareQueue(orderRollbackQueue());
-        // 메뉴 큐 등록
-        rabbitAdmin.declareQueue(menuAddQueue());
-        rabbitAdmin.declareQueue(menuUpdateQueue());
-        rabbitAdmin.declareQueue(ingredientAddQueue());
-        rabbitAdmin.declareQueue(ingredientUpdateQueue());
-        // 지점 큐 등록
-        rabbitAdmin.declareQueue(storeAddQueue());
-        rabbitAdmin.declareQueue(storeUpdateQueue());
-        rabbitAdmin.declareQueue(storeDeleteQueue());
         return rabbitAdmin;
     }
 
