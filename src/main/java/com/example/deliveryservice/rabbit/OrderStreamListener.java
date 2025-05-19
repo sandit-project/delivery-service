@@ -6,11 +6,8 @@ import com.example.deliveryservice.type.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.support.MessageBuilder;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,85 +24,83 @@ import java.util.function.Consumer;
 public class OrderStreamListener {
 
     private final DeliveryService deliveryService;
-    private final StreamBridge streamBridge;
-    private final RabbitTemplate rabbitTemplate; // RabbitMQ 직접 접근용
+    private final RabbitTemplate rabbitTemplate;
 
-    private final List<OrderCreatedMessage> buffer = Collections.synchronizedList(new ArrayList<>());
+    // saveOrders 전용 버퍼
+    private final List<OrderCreatedMessage> saveBuffer = Collections.synchronizedList(new ArrayList<>());
+    // orderRollback 전용 버퍼
+    private final List<OrderCreatedMessage> rollbackBuffer = Collections.synchronizedList(new ArrayList<>());
+
     private final int BATCH_SIZE = 5;
     private final long FLUSH_INTERVAL_MS = 10_000; // 10초
-    private final int MAX_RETRIES = 3;  // 3회까지 재시도
+    private final int MAX_RETRIES = 3;
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private ScheduledFuture<?> scheduledFlush;
 
+    // saveOrders 전용 예약 플러시
+    private ScheduledFuture<?> scheduledSaveFlush;
+    // orderRollback 전용 예약 플러시
+    private ScheduledFuture<?> scheduledRollbackFlush;
+
+    // 기존 saveOrders() 메서드 - 변경 없이 유지 (필요 시 buffer → saveBuffer, scheduledFlush → scheduledSaveFlush 변경 권장)
     @Bean
     public Consumer<OrderCreatedMessage> saveOrders() {
         return message -> {
-            log.info("Order Message 수신: {}", message);
-            buffer.add(message);
+            log.info("Order Cooking Message 수신: {}", message);
+            saveBuffer.add(message);
 
-            if (buffer.size() >= BATCH_SIZE) {
-                flushBuffer();
+            if (saveBuffer.size() >= BATCH_SIZE) {
+                flushSaveBuffer();
             } else {
-                scheduleFlushIfNeeded();
+                scheduleSaveFlushIfNeeded();
             }
         };
     }
 
-    private void flushBuffer() {
+    private void flushSaveBuffer() {
         List<OrderCreatedMessage> batchToSave;
 
-        synchronized (buffer) {
-            if (buffer.isEmpty()) return;
-            batchToSave = new ArrayList<>(buffer);
-            buffer.clear();
+        synchronized (saveBuffer) {
+            if (saveBuffer.isEmpty()) return;
+            batchToSave = new ArrayList<>(saveBuffer);
+            saveBuffer.clear();
         }
 
         attemptSave(batchToSave, 0);
 
-        deliveryService.saveOrders(batchToSave)
-                .subscribe(success -> {
-                    // 실패시 보상 로직 필요함 (롤백 처리)
-                    if (success) log.info("배치 저장 성공: {}건", batchToSave.size());
-                    else log.error("배치 저장 실패");
-                });
+        if (scheduledSaveFlush != null && !scheduledSaveFlush.isDone()) {
+            scheduledSaveFlush.cancel(false);
+        }
+    }
 
-        // 기존 예약된 flush는 취소
-        if (scheduledFlush != null && !scheduledFlush.isDone()) {
-            scheduledFlush.cancel(false);
+    private void scheduleSaveFlushIfNeeded() {
+        if (scheduledSaveFlush == null || scheduledSaveFlush.isDone()) {
+            scheduledSaveFlush = scheduler.schedule(this::flushSaveBuffer, FLUSH_INTERVAL_MS, TimeUnit.MILLISECONDS);
         }
     }
 
     private void attemptSave(List<OrderCreatedMessage> batch, int retryCount) {
-        List<OrderCreatedMessage> failedMessages = new ArrayList<>();  // 실패한 메시지를 저장할 리스트
-
-        // 배치 단위로 처리
         deliveryService.saveOrders(batch)
                 .subscribe(success -> {
                     if (success) {
                         log.info("배치 저장 성공: {}건", batch.size());
                     } else {
                         log.warn("배치 저장 실패. 재시도 {}회", retryCount + 1);
-                        // 실패한 메시지만 따로 저장
-                        batch.forEach(msg -> failedMessages.add(msg));
-
                         if (retryCount < MAX_RETRIES) {
                             attemptSave(batch, retryCount + 1);
                         } else {
-                            log.error("배치 저장 실패 - {}건의 메시지 보상 전송 시작", failedMessages.size());
-                            // 실패한 메시지들만 보상 큐로 전송
-                            failedMessages.forEach(msg -> {
+                            log.error("배치 저장 실패 보상 큐 전송");
+                            batch.forEach(msg -> {
                                 msg.setStatus(OrderStatus.ORDER_CONFIRMED);
                                 rabbitTemplate.convertAndSend("status-change.order-service", msg);
                             });
                         }
                     }
                 }, error -> {
-                    log.error("배치 처리 중 예외 발생: {}", error.getMessage());
+                    log.error("배치 저장 중 예외 발생: {}", error.getMessage());
                     if (retryCount < MAX_RETRIES) {
                         attemptSave(batch, retryCount + 1);
                     } else {
-                        // 예외 발생 시 실패한 메시지만 보상 큐로 전송
                         batch.forEach(msg -> {
                             msg.setStatus(OrderStatus.ORDER_CONFIRMED);
                             rabbitTemplate.convertAndSend("status-change.order-service", msg);
@@ -114,11 +109,67 @@ public class OrderStreamListener {
                 });
     }
 
+    // orderRollback 전용 Consumer 및 플러시, 재시도 로직
+    @Bean
+    public Consumer<OrderCreatedMessage> orderRollback() {
+        return message -> {
+            log.info("Order Rollback Message 수신: {}", message);
+            rollbackBuffer.add(message);
 
+            if (rollbackBuffer.size() >= BATCH_SIZE) {
+                flushRollbackBuffer();
+            } else {
+                scheduleRollbackFlushIfNeeded();
+            }
+        };
+    }
 
-    private void scheduleFlushIfNeeded() {
-        if (scheduledFlush == null || scheduledFlush.isDone()) {
-            scheduledFlush = scheduler.schedule(this::flushBuffer, FLUSH_INTERVAL_MS, TimeUnit.MILLISECONDS);
+    private void flushRollbackBuffer() {
+        List<OrderCreatedMessage> batchToUpdate;
+
+        synchronized (rollbackBuffer) {
+            if (rollbackBuffer.isEmpty()) return;
+            batchToUpdate = new ArrayList<>(rollbackBuffer);
+            rollbackBuffer.clear();
         }
+
+        attemptRollbackUpdate(batchToUpdate, 0);
+
+        if (scheduledRollbackFlush != null && !scheduledRollbackFlush.isDone()) {
+            scheduledRollbackFlush.cancel(false);
+        }
+    }
+
+    private void scheduleRollbackFlushIfNeeded() {
+        if (scheduledRollbackFlush == null || scheduledRollbackFlush.isDone()) {
+            scheduledRollbackFlush = scheduler.schedule(this::flushRollbackBuffer, FLUSH_INTERVAL_MS, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    private void attemptRollbackUpdate(List<OrderCreatedMessage> batch, int retryCount) {
+        deliveryService.updateOrders(batch)
+                .subscribe(success -> {
+                    if (success) {
+                        log.info("배치 업데이트 성공: {}건", batch.size());
+                    } else {
+                        log.warn("배치 업데이트 실패. 재시도 {}회", retryCount + 1);
+                        if (retryCount < MAX_RETRIES) {
+                            attemptRollbackUpdate(batch, retryCount + 1);
+                        } else {
+                            log.error("보상 메시지 처리 실패. 수동 조치 필요.");
+                            batch.forEach(msg -> log.error("보상 실패 메시지: {}", msg));
+                        }
+                    }
+                }, error -> {
+                    log.error("업데이트 중 예외 발생: {}", error.getMessage());
+                    if (retryCount < MAX_RETRIES) {
+                        attemptRollbackUpdate(batch, retryCount + 1);
+                    } else {
+                        batch.forEach(msg -> {
+                            msg.setStatus(OrderStatus.ORDER_CONFIRMED);
+                            rabbitTemplate.convertAndSend("status-change.order-service", msg);
+                        });
+                    }
+                });
     }
 }

@@ -8,6 +8,8 @@ import org.springframework.data.r2dbc.repository.Query;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Repository
 public interface DeliveryRepository extends ReactiveCrudRepository<Delivery, Integer> {
     @Query("SELECT * FROM `delivery` WHERE `status` = 'ORDER_COOKING'")
@@ -24,6 +26,8 @@ public interface DeliveryRepository extends ReactiveCrudRepository<Delivery, Int
 
     @Query("SELECT * FROM `delivery` WHERE `merchant_uid` = :merchantUid AND `status` = 'ORDER_DELIVERING'")
     Mono<Delivery> findDeliveringByMerchantUid(@Param("merchantUid") String merchantUid);
+
+    Flux<Delivery> findAllByMerchantUidIn(List<String> merchantUids);
 
     @Modifying
     @Query("""
