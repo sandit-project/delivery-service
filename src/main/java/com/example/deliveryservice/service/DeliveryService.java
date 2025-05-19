@@ -7,13 +7,11 @@ import com.example.deliveryservice.dto.DeliveryStartRequestDTO;
 import com.example.deliveryservice.dto.RabbitResponseDTO;
 import com.example.deliveryservice.event.OrderCreatedMessage;
 import com.example.deliveryservice.type.OrderStatus;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -21,6 +19,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -73,6 +72,47 @@ public class DeliveryService {
                 .deliveredTime(delivery.deliveredTime())
                 .build();
     }
+
+    // 보상 큐에서 가져온 메시지를 기반으로 DB 상태 업데이트
+    public Mono<Boolean> updateOrders(List<OrderCreatedMessage> messages) {
+        if (messages.isEmpty()) {
+            return Mono.just(true);
+        }
+
+        // merchantUid 목록 추출
+        List<String> merchantUids = messages.stream()
+                .map(OrderCreatedMessage::getMerchantUid)
+                .distinct()
+                .toList();
+
+        Map<String, OrderCreatedMessage> messageMap = messages.stream()
+                .collect(Collectors.toMap(OrderCreatedMessage::getMerchantUid, msg -> msg, (m1, m2) -> m1)); // 중복 시 첫 번째 사용
+
+        return deliveryRepository.findAllByMerchantUidIn(merchantUids)
+                .map(delivery -> {
+                    OrderCreatedMessage message = messageMap.get(delivery.merchantUid());
+                    if (message == null) return delivery;
+
+                    return Delivery.builder()
+                            .uid(delivery.uid())
+                            .merchantUid(delivery.merchantUid())
+                            .riderUserUid(delivery.riderUserUid())
+                            .riderSocialUid(delivery.riderSocialUid())
+                            .addressStart(delivery.addressStart())
+                            .addressDestination(delivery.addressDestination())
+                            .deliveryAcceptTime(delivery.deliveryAcceptTime())
+                            .deliveredTime(delivery.deliveredTime())
+                            .status(message.getStatus()) // 업데이트 필드
+                            .version(delivery.version())
+                            .build();
+                })
+                .collectList()
+                .flatMap(updatedList -> {
+                    if (updatedList.isEmpty()) return Mono.just(false);
+                    return deliveryRepository.saveAll(updatedList).then().thenReturn(true);
+                });
+    }
+
 
     // 조리중 상태 주문 조회
     public Flux<OrderCreatedMessage> getCookingOrders() {
