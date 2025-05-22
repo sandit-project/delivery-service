@@ -1,0 +1,43 @@
+server:
+  port: 9005
+
+spring:
+  application:
+    name: delivery-service
+  r2dbc:
+    username: ${SPRING_R2DBC_USER}
+    password: ${SPRING_R2DBC_PASSWORD}
+    url: ${SPRING_R2DBC_URL}
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST}
+    port: ${SPRING_RABBITMQ_PORT}
+    username: ${SPRING_RABBITMQ_USER}
+    password: ${SPRING_RABBITMQ_PASSWORD}
+    connection-timeout: 5s
+  cloud:
+    function:
+      definition: saveOrders;orderRollback
+    stream:
+      bindings:
+        saveOrders-in-0:
+          destination: order-cooking
+          content-type: application/json
+          group: order-service
+        orderRollback-in-0:
+          destination: order-rollback
+          content-type: application/json
+          group: order-service
+      rabbit:
+        bindings:
+          saveOrders-in-0:
+            consumer:
+              exchangeType: direct
+          orderRollback-in-0:
+            consumer:
+              exchangeType: direct
+  data:
+    redis:
+      port: ${REDIS_PORT}
+      host: ${REDIS_URL}
+      password: ${REDIS_PASSWORD}
+      username: ${REDIS_USER}
