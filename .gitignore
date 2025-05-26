@@ -27,7 +27,6 @@ out/
 !**/src/test/**/out/
 **/application.yml
 /src/test/
-/k8s/
 
 ### NetBeans ###
 /nbproject/private/
