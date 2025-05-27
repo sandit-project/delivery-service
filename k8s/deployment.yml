@@ -36,7 +36,7 @@ spec:
             - name: SPRING_RABBITMQ_PORT
               value: "5672"
             - name: SPRING_R2DBC_URL
-              value: r2dbc:mysql://sandit-mysql:3306/delivery
+              value: r2dbc:mysql://${MYSQL_IP}:3306/delivery
             - name: REDIS_PORT
               value: "6379"
             - name: REDIS_URL
