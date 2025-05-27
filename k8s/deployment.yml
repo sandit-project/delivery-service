@@ -32,7 +32,7 @@ spec:
             - containerPort: 9005
           env:
             - name: SPRING_RABBITMQ_HOST
-              value: $(RABBITMQ_IP)
+              value: ${RABBITMQ_IP}
             - name: SPRING_RABBITMQ_PORT
               value: "5672"
             - name: SPRING_R2DBC_URL
@@ -40,7 +40,7 @@ spec:
             - name: REDIS_PORT
               value: "6379"
             - name: REDIS_URL
-              value: $(REDIS_IP)
+              value: ${REDIS_IP}
             - name: SPRING_PROFILES_ACTIVE
               value: deploy
             - name: SPRING_RABBITMQ_USER
