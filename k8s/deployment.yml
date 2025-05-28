@@ -15,7 +15,7 @@ spec:
         role: main
       containers:
         - name: delivery-service
-          image: 448049828702.dkr.ecr.ap-northeast-2.amazonaws.com/delivery-service:latest
+          image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/delivery-service:latest
           imagePullPolicy: Always
           lifecycle:
             preStop:
@@ -32,15 +32,15 @@ spec:
             - containerPort: 9005
           env:
             - name: SPRING_RABBITMQ_HOST
-              value: ${RABBITMQ_IP}
+              value: $RABBITMQ_IP
             - name: SPRING_RABBITMQ_PORT
               value: "5672"
             - name: SPRING_R2DBC_URL
-              value: r2dbc:mysql://${MYSQL_IP}:3306/delivery
+              value: r2dbc:mysql://$MYSQL_IP:3306/delivery
             - name: REDIS_PORT
               value: "6379"
             - name: REDIS_URL
-              value: ${REDIS_IP}
+              value: $REDIS_IP
             - name: SPRING_PROFILES_ACTIVE
               value: deploy
             - name: SPRING_RABBITMQ_USER
