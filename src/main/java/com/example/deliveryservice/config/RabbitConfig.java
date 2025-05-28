@@ -62,7 +62,7 @@ public class RabbitConfig {
         return BindingBuilder
                 .bind(orderCookingQueue()) // order-cooking.order-service
                 .to(orderCookingExchange()) // 메시지를 보낸 exchange
-                .with("#"); // 정확히 같은 routing key 사용
+                .with("order.cooking"); // 정확히 같은 routing key 사용
     }
 
     // 롤백 바인딩
@@ -71,7 +71,7 @@ public class RabbitConfig {
         return BindingBuilder
                 .bind(orderRollbackQueue())
                 .to(orderRollbackExchange())
-                .with("#"); // 메시지 routing key 와 정확히 일치
+                .with("order.rollback"); // 메시지 routing key 와 정확히 일치
     }
 
     // RabbitAdmin으로 큐 선언 보장
