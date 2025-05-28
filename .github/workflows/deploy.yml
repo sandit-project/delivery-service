@@ -13,6 +13,14 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v3
 
+      # Terraform 인프라 구성 상태를 읽기 위해, 별도의 infra 레포(sandit-deployment)를 clone
+      - name: Checkout infra repo
+        uses: actions/checkout@v4
+        with:
+          repository: sandit-project/sandit-deployment
+          token: ${{ secrets.INFRA_REPO_ACCESS_TOKEN }}
+          path: sandit-deployment
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
