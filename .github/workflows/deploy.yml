@@ -101,6 +101,8 @@ jobs:
           REDIS_IP: ${{ fromJSON(steps.fetch.outputs.workspace-outputs-json).REDIS_IP }}
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          envsubst < k8s/deployment.yml > k8s/deployment.rendered.yml
 
       - name: Deploy to Kubernetes
         run: |
